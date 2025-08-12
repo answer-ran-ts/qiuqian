@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)file:///Users/ranqi/1.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>求签 1-100</title>
+    <meta name="description" content="求签 1-100 随机抽取一个签">
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --muted: #94a3b8;
+        --text: #e5e7eb;
+        --primary: #22d3ee;
+        --primary-600: #0891b2;
+        --accent: #f472b6;
+        --good: #34d399;
+        --warning: #f59e0b;
+        --shadow: 0 10px 30px rgba(2, 8, 23, 0.6);
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: radial-gradient(1200px 600px at 20% -10%, #1e293b 0%, #0b1220 40%, var(--bg) 100%);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+        padding: 20px;
+      }
+      .app {
+        width: min(920px, 100%);
+        display: grid;
+        gap: 18px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .title {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .title h1 {
+        margin: 0;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        font-size: clamp(22px, 3.2vw, 32px);
+        background: linear-gradient(92deg, var(--primary), #60a5fa, var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .title small { color: var(--muted); }
+
+      .panel {
+        background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .display {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 16px;
+      }
+      @media (max-width: 800px) {
+        .display { grid-template-columns: 1fr; }
+      }
+
+      .big-card {
+        padding: 20px 20px 24px;
+        display: grid;
+        gap: 16px;
+      }
+      .number-card {
+        position: relative;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        aspect-ratio: 10/4;
+        border-radius: 12px;
+        background: radial-gradient(800px 200px at 50% -20%, rgba(34,211,238,0.18), rgba(244,114,182,0.08) 40%, rgba(255,255,255,0.02) 100%);
+        border: 1px solid rgba(255,255,255,0.09);
+      }
+      .number {
+        font-size: clamp(44px, 10vw, 120px);
+        font-weight: 900;
+        letter-spacing: 2px;
+        line-height: 1;
+        filter: drop-shadow(0 8px 20px rgba(0,0,0,0.35));
+      }
+      .placeholder { color: var(--muted); font-weight: 600; }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .left-controls, .right-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .btn {
+        appearance: none;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+        color: var(--text);
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.04s ease, border-color 0.2s ease, background 0.2s ease;
+      }
+      .btn:hover { border-color: rgba(255,255,255,0.22); }
+      .btn:active { transform: translateY(1px) scale(0.99); }
+
+      .btn-primary {
+        border: 1px solid rgba(34,211,238,0.4);
+        background: linear-gradient(180deg, rgba(34,211,238,0.2), rgba(34,211,238,0.08));
+        box-shadow: 0 8px 26px rgba(34,211,238,0.22);
+      }
+
+      .checkbox {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted);
+        user-select: none;
+      }
+      .checkbox input { width: 16px; height: 16px; }
+
+      .progress {
+        width: 100%;
+        height: 8px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .progress > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--good), var(--primary));
+        transition: width 280ms ease;
+      }
+
+      .side {
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+      .side h3 { margin: 0; font-size: 14px; color: var(--muted); font-weight: 700; }
+      .history {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+      @media (max-width: 420px) {
+        .history { grid-template-columns: repeat(4, 1fr); }
+      }
+      .chip {
+        text-align: center;
+        padding: 8px 0;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03);
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .muted { color: var(--muted); }
+
+      .kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        border: 1px solid rgba(255,255,255,0.18);
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: rgba(255,255,255,0.06);
+      }
+
+      /* Animations */
+      .shake { animation: shake 0.6s ease; }
+      @keyframes shake {
+        10%, 90% { transform: translateX(-1px); }
+        20%, 80% { transform: translateX(2px); }
+        30%, 50%, 70% { transform: translateX(-4px); }
+        40%, 60% { transform: translateX(4px); }
+      }
+      .pop { animation: pop 0.4s ease; }
+      @keyframes pop {
+        0% { transform: scale(0.7); opacity: 0; }
+        60% { transform: scale(1.08); opacity: 1; }
+        100% { transform: scale(1); }
+      }
+
+      /* Confetti (emoji) */
+      .confetti {
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .confetti span {
+        position: absolute;
+        top: -10%;
+        font-size: 20px;
+        animation: fall linear forwards;
+        filter: drop-shadow(0 6px 6px rgba(0,0,0,0.25));
+      }
+      @keyframes fall {
+        to {
+          transform: translateY(120vh) rotate(720deg);
+          opacity: 0.9;
+        }
+      }
+
+      footer {
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div class="title">
+          <h1>求签 1–100</h1>
+          <small class="muted">随机抽取一个签</small>
+        </div>
+        <div class="muted" aria-hidden="true">
+          快捷键 <span class="kbd">Space</span> 抽取 · <span class="kbd">R</span> 重置
+        </div>
+      </header>
+
+      <section class="display">
+        <div class="big-card panel" id="mainCard">
+          <div class="number-card shake" id="numberCard" aria-live="polite">
+            <div class="confetti" id="confetti"></div>
+            <div id="number" class="number pop placeholder">点击“抽签”开始</div>
+          </div>
+
+          <div class="controls">
+            <div class="left-controls">
+              <button id="drawBtn" class="btn btn-primary" aria-label="抽签">🎋 抽签</button>
+              <button id="resetBtn" class="btn" aria-label="重置">↺ 重置</button>
+              <label class="checkbox" title="启用后，每个数字只会出现一次">
+                <input type="checkbox" id="noRepeat"> 不重复抽取
+              </label>
+            </div>
+            <div class="right-controls muted">
+              <span id="progressText">已抽 0 / 100</span>
+              <div class="progress" style="width:160px">
+                <i id="progressBar" style="width: 0%;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="side panel">
+          <h3>历史记录</h3>
+          <div class="history" id="history"></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+            <button id="copyBtn" class="btn" title="复制已抽签号">复制</button>
+            <button id="shareBtn" class="btn" title="分享已抽签号">分享</button>
+          </div>
+        </aside>
+      </section>
+
+      <footer>
+        小贴士：启用“不可重复”后将从 1–100 的全集中抽取；再次点击重置可清空记录。
+      </footer>
+    </div>
+
+    <script>
+      const numberEl = document.getElementById('number');
+      const numberCard = document.getElementById('numberCard');
+      const drawBtn = document.getElementById('drawBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const noRepeatEl = document.getElementById('noRepeat');
+      const historyEl = document.getElementById('history');
+      const progressTextEl = document.getElementById('progressText');
+      const progressBarEl = document.getElementById('progressBar');
+      const confettiEl = document.getElementById('confetti');
+      const shareBtn = document.getElementById('shareBtn');
+      const copyBtn = document.getElementById('copyBtn');
+
+      const TOTAL = 100;
+      let drawnSet = new Set();
+
+      function getRandomIntInclusive(min, max) {
+        const low = Math.ceil(min);
+        const high = Math.floor(max);
+        return Math.floor(Math.random() * (high - low + 1)) + low;
+      }
+
+      function pickNumber() {
+        const noRepeat = noRepeatEl.checked;
+
+        if (!noRepeat) {
+          return getRandomIntInclusive(1, TOTAL);
+        }
+
+        if (drawnSet.size >= TOTAL) return null;
+
+        // Reservoir-like rejection sampling; acceptable due to small domain (100)
+        let candidate;
+        do {
+          candidate = getRandomIntInclusive(1, TOTAL);
+        } while (drawnSet.has(candidate));
+        return candidate;
+      }
+
+      function updateProgress() {
+        const count = drawnSet.size;
+        progressTextEl.textContent = `已抽 ${count} / ${TOTAL}`;
+        const percent = (count / TOTAL) * 100;
+        progressBarEl.style.width = `${percent}%`;
+      }
+
+      function addHistory(n) {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = String(n);
+        historyEl.prepend(chip);
+      }
+
+      function clearHistory() {
+        historyEl.innerHTML = '';
+      }
+
+      function animateShake() {
+        numberCard.classList.remove('shake');
+        void numberCard.offsetWidth; // restart animation
+        numberCard.classList.add('shake');
+      }
+
+      function animatePop(el) {
+        el.classList.remove('pop');
+        void el.offsetWidth;
+        el.classList.add('pop');
+      }
+
+      function launchConfetti() {
+        confettiEl.innerHTML = '';
+        const emojis = ['🎉','✨','🎊','🧧','💫','🌟'];
+        const count = 36;
+        const durationBase = 1200;
+        for (let i = 0; i < count; i++) {
+          const span = document.createElement('span');
+          span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          const left = Math.random() * 100;
+          const delay = Math.random() * 200;
+          const duration = durationBase + Math.random() * 900;
+          const rotate = (Math.random() * 2 - 1) * 60;
+          span.style.left = `${left}%`;
+          span.style.animationDuration = `${duration}ms`;
+          span.style.animationDelay = `${delay}ms`;
+          span.style.transform = `translateY(-10vh) rotate(${rotate}deg)`;
+          confettiEl.appendChild(span);
+        }
+        // Cleanup later
+        setTimeout(() => (confettiEl.innerHTML = ''), 2400);
+      }
+
+      function setNumberDisplay(n) {
+        numberEl.classList.remove('placeholder');
+        numberEl.textContent = n == null ? '—' : String(n);
+        animatePop(numberEl);
+      }
+
+      function drawOnce() {
+        animateShake();
+        drawBtn.disabled = true;
+        setTimeout(() => {
+          const n = pickNumber();
+          if (n == null) {
+            setNumberDisplay('已完成');
+          } else {
+            setNumberDisplay(n);
+            drawnSet.add(n);
+            addHistory(n);
+            launchConfetti();
+          }
+          updateProgress();
+          drawBtn.disabled = false;
+        }, 520);
+      }
+
+      function resetAll() {
+        drawnSet = new Set();
+        numberEl.textContent = '点击“抽签”开始';
+        numberEl.classList.add('placeholder');
+        clearHistory();
+        updateProgress();
+        confettiEl.innerHTML = '';
+      }
+
+      function getDrawnList() {
+        // Return newest first (as shown in history)
+        return Array.from(historyEl.querySelectorAll('.chip')).map(el => el.textContent);
+      }
+
+      async function shareList() {
+        const list = getDrawnList();
+        const text = list.length ? `已抽签号：${list.join(', ')}` : '暂无记录';
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: '求签结果', text });
+          } catch { /* dismissed */ }
+        } else {
+          try {
+            await navigator.clipboard.writeText(text);
+            toast('内容已复制');
+          } catch {
+            alert(text);
+          }
+        }
+      }
+
+      async function copyList() {
+        const list = getDrawnList();
+        const text = list.length ? list.join(', ') : '';
+        try {
+          await navigator.clipboard.writeText(text);
+          toast(text ? '已复制到剪贴板' : '暂无可复制的记录');
+        } catch {
+          alert(text || '暂无可复制的记录');
+        }
+      }
+
+      function toast(msg) {
+        const t = document.createElement('div');
+        t.textContent = msg;
+        t.style.position = 'fixed';
+        t.style.left = '50%';
+        t.style.bottom = '20px';
+        t.style.transform = 'translateX(-50%)';
+        t.style.background = 'rgba(17,24,39,0.9)';
+        t.style.border = '1px solid rgba(255,255,255,0.18)';
+        t.style.color = 'var(--text)';
+        t.style.padding = '10px 14px';
+        t.style.borderRadius = '10px';
+        t.style.zIndex = '9999';
+        document.body.appendChild(t);
+        setTimeout(() => {
+          t.style.transition = 'opacity 240ms ease, transform 240ms ease';
+          t.style.opacity = '0';
+          t.style.transform = 'translateX(-50%) translateY(6px)';
+          setTimeout(() => t.remove(), 260);
+        }, 900);
+      }
+
+      // Events
+      drawBtn.addEventListener('click', () => drawOnce());
+      resetBtn.addEventListener('click', () => resetAll());
+      shareBtn.addEventListener('click', () => shareList());
+      copyBtn.addEventListener('click', () => copyList());
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          drawOnce();
+        } else if (e.key === 'r' || e.key === 'R') {
+          resetAll();
+        }
+      });
+
+      // Init
+      updateProgress();
+    </script>
+  
+
+</body></html>
